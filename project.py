@@ -5,6 +5,9 @@ from elo import rate_1vs1
 import operator
 import networkx as nx
 
+
+#Reads in data from text file
+
 def get_data():
     file = open("cf1990gms.txt", "rU")
     line = file.readline().strip()
@@ -69,6 +72,8 @@ def get_data():
 
     return games
 
+
+#Construct directed graph with edges pointing to teams which lost
 def construct_loss_graph(data):
     MG=nx.DiGraph()
     edges = []
@@ -96,6 +101,8 @@ def construct_loss_graph(data):
     MG.add_weighted_edges_from(edges)
     return MG
 
+
+#Construct directed graph with edges pointing to teams which won
 def construct_win_graph(data):
     MG=nx.DiGraph()
     edges = []
@@ -122,8 +129,8 @@ def construct_win_graph(data):
     MG.add_weighted_edges_from(edges)
     return MG
 
-# print nx.degree(construct_win_graph(get_data()))
 
+#Calculate pagerank score for each team based on wins and losses
 def calculate_pagerank():
     page_rank_win = nx.pagerank_numpy(construct_win_graph(get_data()), alpha=.25)
     page_rank_loss = nx.pagerank_numpy(construct_loss_graph(get_data()), alpha=.25)
@@ -136,14 +143,16 @@ def calculate_pagerank():
     for x in page_rank_sorted[0:10]:
         print(x)
 
-def test_for_multiple_games():
-    game_teams = [[x['away_team'], x['home_team']] for x in get_data()]
-    while len(game_teams) > 0:
-        game_team = game_teams.pop()
-        for gt in game_teams:
-            if game_team[0] in gt and game_team[1] in gt:
-                print('test')
+#def test_for_multiple_games():
+#    game_teams = [[x['away_team'], x['home_team']] for x in get_data()]
+#    while len(game_teams) > 0:
+#        game_team = game_teams.pop()
+#        for gt in game_teams:
+#            if game_team[0] in gt and game_team[1] in gt:
+#                print('test')
 
+
+#Calculate katz centrality on win and loss graphs.  Reward teams for wins and penalize for losses.
 def calculate_katz_win_loss():
     katz_win = nx.katz_centrality_numpy(construct_win_graph(get_data()), alpha=.25)
     katz_loss = nx.katz_centrality_numpy(construct_loss_graph(get_data()), alpha=.25)
@@ -156,12 +165,16 @@ def calculate_katz_win_loss():
     for x in katz_sorted[0:10]:
         print(x)
 
+
+#Calculate katz centrality on only the win graph so that teams are not penalized for losses
 def calculate_katz_win_only():
     katz_win = nx.katz_centrality_numpy(construct_win_graph(get_data()), alpha=.25)
     katz_sorted = sorted([x for x in katz_win.items()], key = lambda x: x[1], reverse=True)
     for x in katz_sorted[0:10]:
         print(x)
 
+
+#Calculate Elo scores for each team using elo.py
 def Calc_Elo(games):
     teams = set(g['home_team'] for g in games)
     teams.update(g['away_team'] for g in games)
@@ -185,7 +198,7 @@ def Calc_Elo(games):
 
     return Elo_Scores
 
-calculate_katz_win_only()
-#Scores = Calc_Elo(get_data())
-#sorted_scores = sorted(Scores.items(), key=operator.itemgetter(1), reverse=True)
-#print(sorted_scores[:10])
+#calculate_katz_win_only()
+Scores = Calc_Elo(get_data())
+sorted_scores = sorted(Scores.items(), key=operator.itemgetter(1), reverse=True)
+print(sorted_scores[:10])
