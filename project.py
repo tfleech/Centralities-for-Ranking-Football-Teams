@@ -198,7 +198,17 @@ def Calc_Elo(games):
 
     return Elo_Scores
 
+
+#Prints top 10 in order as calculated by pagerank
+calculate_pagerank()
+
+#Prints top 10 teams in order as calculated by katz_win_loss
+#calculate_katz_win_loss()
+
+#Prints top 10 teams in order as calculated by katz_win_only
 #calculate_katz_win_only()
-Scores = Calc_Elo(get_data())
-sorted_scores = sorted(Scores.items(), key=operator.itemgetter(1), reverse=True)
-print(sorted_scores[:10])
+
+#Prints top 10 teams in order using elo scores
+#Scores = Calc_Elo(get_data())
+#sorted_scores = sorted(Scores.items(), key=operator.itemgetter(1), reverse=True)
+#print(sorted_scores[:10])
